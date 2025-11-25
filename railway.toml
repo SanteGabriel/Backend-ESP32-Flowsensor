@@ -1,0 +1,17 @@
+# Opción 1: Build desde Dockerfile (comentado)
+# [build]
+# builder = "DOCKERFILE"
+# dockerfilePath = "Dockerfile"
+
+# Opción 2: Usar imagen desde Docker Hub
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+# Imagen de Docker Hub (actualizar con tu usuario)
+# image = "tuusuario/water-dispenser:latest"
+startCommand = "python main.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 100

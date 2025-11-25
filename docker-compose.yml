@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Water Dispenser API (SQLite)
+  # ============================================
+  water-dispenser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: water-dispenser-api
+    ports:
+      - "8000:8000"  # Host:Container
+    environment:
+      # Servidor
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=False
+
+      # Base de datos SQLite (por defecto)
+      - DATABASE_URL=sqlite+aiosqlite:///./data/water_dispenser.db
+
+      # Notificaciones
+      - NOTIFICATION_SERVICE=console
+      - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
+
+      # Control de bomba
+      - PUMP_CHECK_INTERVAL=5
+      - PUMP_MAX_LEVEL=100.0
+      - PUMP_THRESHOLD_STOP=95.0
+      - PUMP_THRESHOLD_WARNING=80.0
+
+      # Métricas
+      - PRICE_PER_LITER=2.0
+
+      # ESP32
+      - ESP32_DEVICE_ID=flowsensor_001
+
+    volumes:
+      # Persistir base de datos SQLite
+      - ./data:/app/data
+      # Persistir logs (opcional)
+      - ./logs:/app/logs
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - water-dispenser-network
+
+  # ============================================
+  # Water Dispenser API + PostgreSQL (Producción)
+  # ============================================
+  # Descomentar para usar PostgreSQL en lugar de SQLite
+
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: water-dispenser-db
+  #   environment:
+  #     - POSTGRES_USER=water_dispenser
+  #     - POSTGRES_PASSWORD=secure_password_123
+  #     - POSTGRES_DB=water_dispenser
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U water_dispenser"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   networks:
+  #     - water-dispenser-network
+
+  # water-dispenser-postgres:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: water-dispenser-api-postgres
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - HOST=0.0.0.0
+  #     - PORT=8000
+  #     - DATABASE_URL=postgresql+asyncpg://water_dispenser:secure_password_123@postgres:5432/water_dispenser
+  #     - NOTIFICATION_SERVICE=console
+  #     - PUMP_CHECK_INTERVAL=5
+  #     - PUMP_MAX_LEVEL=100.0
+  #     - PUMP_THRESHOLD_STOP=95.0
+  #     - PUMP_THRESHOLD_WARNING=80.0
+  #     - PRICE_PER_LITER=2.0
+  #     - ESP32_DEVICE_ID=flowsensor_001
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - water-dispenser-network
+
+networks:
+  water-dispenser-network:
+    driver: bridge
+
+# Volúmenes comentados para Railway (usa PostgreSQL managed)
+# volumes:
+#   postgres-data:
+#     driver: local
+
+# ============================================
+# Comandos útiles:
+# ============================================
+#
+# Iniciar servicios:
+#   docker-compose up -d
+#
+# Ver logs:
+#   docker-compose logs -f water-dispenser
+#
+# Detener servicios:
+#   docker-compose down
+#
+# Reconstruir imagen:
+#   docker-compose build --no-cache
+#
+# Ejecutar migraciones:
+#   docker-compose exec water-dispenser python scripts/migrate_add_pulse_fields.py
+#
+# Inicializar base de datos:
+#   docker-compose exec water-dispenser python scripts/init_database.py
+#
+# Acceder al contenedor:
+#   docker-compose exec water-dispenser /bin/bash
+#
+# Ver estado de servicios:
+#   docker-compose ps
+#
+# Limpiar todo (¡CUIDADO! Borra volúmenes):
+#   docker-compose down -v
+#
+# ============================================

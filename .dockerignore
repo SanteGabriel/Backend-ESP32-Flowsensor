@@ -1,0 +1,108 @@
+# ============================================
+# .dockerignore - Excluir archivos innecesarios
+# ============================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Base de datos local
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+water_dispenser.db
+
+# Logs
+*.log
+logs/
+*.out
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentación
+docs/
+*.md
+README.md
+LICENSE
+
+# Tests
+tests/
+*.test.py
+test_*.py
+
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Node (si aplica)
+node_modules/
+package-lock.json
+yarn.lock
+
+# UV cache
+.uv/
+
+# Ejemplos y scripts de desarrollo
+examples/
+scripts/*.py
+!scripts/init_database.py
+!scripts/migrate_add_pulse_fields.py
+
+# Configuración local
+.env.example
+Makefile
+
+# Archivos grandes innecesarios
+*.zip
+*.tar.gz
+*.rar
+
+# Cache de sistema
+.cache/
+*.pyc
